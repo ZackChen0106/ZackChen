@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>房地產學習進度追蹤</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #459eb5;
+            --secondary-color: #ff9300;
+            --accent-color: #3d4445;
+            --background-color: #e6e6e6;
+            --text-color: #3d4445;
+            --card-color: #ffffff;
+            --box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            --gold-color: #ff9300;
+            --accent-background-color: #459eb5;
+            --accent-text-color: #ffffff;
+        }
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: var(--card-color);
+            border-radius: 20px;
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        h1::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background-color: var(--primary-color);
+            bottom: 0;
+            left: 0;
+            transform: scaleX(0);
+            transition: transform 0.5s ease-out;
+        }
+        h1:hover::after {
+            transform: scaleX(1);
+        }
+        .progress-overview {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            background-color: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .progress-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: conic-gradient(var(--primary-color) 0deg, #ecf0f1 0deg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+            transition: transform 0.3s;
+            position: relative;
+        }
+        .progress-circle:hover {
+            transform: scale(1.1);
+        }
+        .progress-circle::before {
+            content: attr(data-progress);
+            width: 180px;
+            height: 180px;
+            background-color: var(--card-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            animation: progressAnimation 1s ease-in-out forwards;
+        }
+        @keyframes progressAnimation {
+            0% { opacity: 0; transform: scale(0.5); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        .progress-details {
+            flex-grow: 1;
+            margin-left: 40px;
+        }
+        .progress-bar {
+            height: 12px;
+            background-color: #ecf0f1;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+            transition: width 0.8s ease-out;
+        }
+        .topics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+        .topic-card {
+            background-color: var(--card-color);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .topic-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            color: var(--primary-color);
+        }
+        .topic-progress {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .topic-progress-bar {
+            height: 8px;
+            background-color: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        .topic-progress-bar-fill {
+            height: 100%;
+            background-color: var(--secondary-color);
+            transition: width 0.5s ease-out;
+        }
+        .achievement-banner {
+            background-color: var(--gold-color);
+            color: white;
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 30px;
+            font-weight: bold;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.5s ease-out;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
+        .achievement-banner.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .reminder-banner {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 30px;
+            font-weight: bold;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease-out;
+        }
+        .reminder-banner.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .search-bar {
+            width: 100%;
+            max-width: 300px;
+            padding: 10px;
+            font-size: 1.2rem;
+            border: 2px solid var(--primary-color);
+            border-radius: 10px;
+            box-shadow: var(--box-shadow);
+            position: absolute;
+            right: 20px;
+            top: 20px;
+        }
+        /* 子項目列表樣式 */
+        .sub-topic {
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--card-color);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            display: none; /* Initially hidden */
+        }
+        .sub-topic.completed {
+            background: #eafaf1; /* Lighter green for completed items */
+        }
+        .sub-topic-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--accent-color);
+        }
+        .sub-topic-detail {
+            font-size: 1rem;
+            color: #95a5a6;
+        }
+        .video-length {
+            margin-left: 10px;
+            font-size: 0.9rem;
+            color: var(--accent-color);
+        }
+        /* 動態顯示子項目 */
+        .topic-card:hover .sub-topic {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <input type="text" class="search-bar" placeholder="搜尋課程內容...">
+
+    <div class="container">
+        <h1>初階課程</h1>
+        <div class="progress-overview">
+            <div class="progress-circle" data-progress="60%">
+                <!-- 圓形進度條 -->
+            </div>
+            <div class="progress-details">
+                <div class="progress-bar">
+                    <div class="progress-bar-fill" style="width: 60%;"></div>
+                </div>
+                <div>已完成主題：<span id="completedTopics1">1</span> / <span id="totalTopics1">3</span></div>
+            </div>
+        </div>
+
+        <div class="topics">
+            <!-- 初階課程主題卡片 -->
+            <div class="topic-card" data-progress="100">
+                <div class="topic-title">認識戰情</div>
+                <div class="topic-progress">
+                    <div class="topic-progress-bar">
+                        <div class="topic-progress-bar-fill" style="width: 100%"></div>
+                    </div>
+                    <span>100%</span>
+                    <span class="video-length">影片長度：<span id="videoLength1"></span></span>
+                </div>
+                <!-- 子項目列表 -->
+                <div class="sub-topic completed">
+                    <div class="sub-topic-title">課程 1：戰情基本概念</div>
+                    <div class="sub-topic-detail">已完成</div>
+                </div>
+                <div class="sub-topic completed">
+                    <div class="sub-topic-title">課程 2：戰情趨勢分析</div>
+                    <div class="sub-topic-detail">已完成</div>
+                </div>
+            </div>
+
+            <div class="topic-card" data-progress="60">
+                <div class="topic-title">基礎設定</div>
+                <div class="topic-progress">
+                    <div class="topic-progress-bar">
+                        <div class="topic-progress-bar-fill" style="width: 60%"></div>
+                    </div>
+                    <span>60%</span>
+                    <span class="video-length">影片長度：<span id="videoLength2"></span></span>
+                </div>
+                <!-- 子項目列表 -->
+                <div class="sub-topic">
+                    <div class="sub-topic-title">課程 1：長期設定策略</div>
+                    <div class="sub-topic-detail">未完成</div>
+                </div>
+                <div class="sub-topic">
+                    <div class="sub-topic-title">課程 2：短期設定技巧</div>
+                    <div class="sub-topic-detail">未完成</div>
+                </div>
+            </div>
+
+            <div class="topic-card" data-progress="40">
+                <div class="topic-title">常見問題</div>
+                <div class="topic-progress">
+                    <div class="topic-progress-bar">
+                        <div class="topic-progress-bar-fill" style="width: 40%"></div>
+                    </div>
+                    <span>40%</span>
+                    <span class="video-length">影片長度：<span id="videoLength3"></span></span>
+                </div>
+                <!-- 子項目列表 -->
+                <div class="sub-topic">
+                    <div class="sub-topic-title">課程 1：常見問題解析</div>
+                    <div class="sub-topic-detail">未完成</div>
+                </div>
+                <div class="sub-topic">
+                    <div class="sub-topic-title">課程 2：疑難問題解答</div>
+                    <div class="sub-topic-detail">未完成</div>
+                </div>
+            </div>
+        </div>
+        <div class="reminder-banner">下面還有進階課程！</div>
+        <div class="achievement-banner" id="achievementBanner1"></div>
+        <div class="reminder-banner" id="reminderBanner1">記得繼續學習！每個星期進步一點點！</div>
+    </div>
+
+    <div class="container">
+        <h1>進階課程</h1>
+        <div class="progress-overview">
+            <div class="progress-circle" data-progress="60%">
+                <!-- 圓形進度條 -->
+            </div>
+            <div class="progress-details">
+                <div class="progress-bar">
+                    <div class="progress-bar-fill" style="width: 60%;"></div>
+                </div>
+                <div>已完成主題：<span id="completedTopics2">1</span> / <span id="totalTopics2">6</span></div>
+            </div>
+        </div>
+
+        <div class="topics">
+            <!-- 進階課程主題卡片 -->
+            <div class="topic-card" data-progress="30">
+                <div class="topic-title">市場分析</div>
+                <div class="topic-progress">
+                    <div class="topic-progress-bar">
+                        <div class="topic-progress-bar-fill" style="width: 30%"></div>
+                    </div>
+                    <span>30%</span>
+                    <span class="video-length">影片長度：<span id="videoLength4"></span></span>
+                </div>
+                <!-- 子項目列表 -->
+                <div class="sub-topic">
+                    <div class="sub-topic-title">課程 1：市場數據分析</div>
+                    <div class="sub-topic-detail">未完成</div>
+                </div>
+                <div class="sub-topic">
+                    <div class="sub-topic-title">課程 2：競爭對手研究</div>
+                    <div class="sub-topic-detail">未完成</div>
+                </div>
+            </div>
+
+            <div class="topic-card" data-progress="10">
+                <div class="topic-title">房產評估</div>
+                <div class="topic-progress">
+                    <div class="topic-progress-bar">
+                        <div class="topic-progress-bar-fill" style="width: 10%"></div>
+                    </div>
+                    <span>10%</span>
+                    <span class="video-length">影片長度：<span id="videoLength5"></span></span>
+                </div>
+                <!-- 子項目列表 -->
+                <div class="sub-topic">
+                    <div class="sub-topic-title">課程 1：房產價值評估</div>
+                    <div class="sub-topic-detail">未完成</div>
+                </div>
+                <div class="sub-topic">
+                    <div class="sub-topic-title">課程 2：租金收益計算</div>
+                    <div class="sub-topic-detail">未完成</div>
+                </div>
+            </div>
+
+            <div class="topic-card" data-progress="50">
+                <div class="topic-title">市場預測</div>
+                <div class="topic-progress">
+                    <div class="topic-progress-bar">
+                        <div class="topic-progress-bar-fill" style="width: 50%"></div>
+                    </div>
+                    <span>50%</span>
+                    <span class="video-length">影片長度：<span id="videoLength6"></span></span>
+                </div>
+                <!-- 子項目列表 -->
+                <div class="sub-topic">
+                    <div class="sub-topic-title">課程 1：市場趨勢預測</div>
+                    <div class="sub-topic-detail">未完成</div>
+                </div>
+                <div class="sub-topic">
+                    <div class="sub-topic-title">課程 2：風險管理策略</div>
+                    <div class="sub-topic-detail">未完成</div>
+                </div>
+            </div>
+
+            <div class="topic-card" data-progress="20">
+                <div class="topic-title">高級投資策略</div>
+                <div class="topic-progress">
+                    <div class="topic-progress-bar">
+                        <div class="topic-progress-bar-fill" style="width: 20%"></div>
+                    </div>
+                    <span>20%</span>
+                    <span class="video-length">影片長度：<span id="videoLength7"></span></span>
+                </div>
+                <!-- 子項目列表 -->
+                <div class="sub-topic">
+                    <div class="sub-topic-title">課程 1：複合投資策略</div>
+                    <div class="sub-topic-detail">未完成</div>
+                </div>
+                <div class="sub-topic">
+                    <div class="sub-topic-title">課程 2：國際投資技巧</div>
+                    <div class="sub-topic-detail">未完成</div>
+                </div>
+            </div>
+
+            <div class="topic-card" data-progress="70">
+                <div class="topic-title">房地產法規</div>
+                <div class="topic-progress">
+                    <div class="topic-progress-bar">
+                        <div class="topic-progress-bar-fill" style="width: 70%"></div>
+                    </div>
+                    <span>70%</span>
+                    <span class="video-length">影片長度：<span id="videoLength8"></span></span>
+                </div>
+                <!-- 子項目列表 -->
+                <div class="sub-topic">
+                    <div class="sub-topic-title">課程 1：土地法規</div>
+                    <div class="sub-topic-detail">未完成</div>
+                </div>
+                <div class="sub-topic">
+                    <div class="sub-topic-title">課程 2：建築法規</div>
+                    <div class="sub-topic-detail">未完成</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="achievement-banner" id="achievementBanner2"></div>
+        <div class="reminder-banner" id="reminderBanner2">記得繼續學習！每個星期進步一點點！</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const topicCards1 = document.querySelectorAll('.container:nth-of-type(1) .topic-card');
+            const topicCards2 = document.querySelectorAll('.container:nth-of-type(2) .topic-card');
+            let totalProgress1 = 0;
+            let completedTopics1 = 0;
+            let totalProgress2 = 0;
+            let completedTopics2 = 0;
+
+            topicCards1.forEach(card => {
+                const progress = parseInt(card.getAttribute('data-progress'));
+                totalProgress1 += progress;
+                if (progress === 100) completedTopics1++;
+            });
+
+            topicCards2.forEach(card => {
+                const progress = parseInt(card.getAttribute('data-progress'));
+                totalProgress2 += progress;
+                if (progress === 100) completedTopics2++;
+            });
+
+            const averageProgress1 = totalProgress1 / topicCards1.length;
+            const averageProgress2 = totalProgress2 / topicCards2.length;
+            const progressCircle1 = document.querySelector('.container:nth-of-type(1) .progress-circle');
+            const progressBarFill1 = document.querySelector('.container:nth-of-type(1) .progress-bar-fill');
+            const completedTopicsSpan1 = document.getElementById('completedTopics1');
+            const totalTopicsSpan1 = document.getElementById('totalTopics1');
+            const achievementBanner1 = document.getElementById('achievementBanner1');
+            const reminderBanner1 = document.getElementById('reminderBanner1');
+            const progressCircle2 = document.querySelector('.container:nth-of-type(2) .progress-circle');
+            const progressBarFill2 = document.querySelector('.container:nth-of-type(2) .progress-bar-fill');
+            const completedTopicsSpan2 = document.getElementById('completedTopics2');
+            const totalTopicsSpan2 = document.getElementById('totalTopics2');
+            const achievementBanner2 = document.getElementById('achievementBanner2');
+            const reminderBanner2 = document.getElementById('reminderBanner2');
+
+            progressCircle1.style.background = `conic-gradient(var(--primary-color) ${averageProgress1 * 3.6}deg, #ecf0f1 0deg)`;
+            progressCircle1.setAttribute('data-progress', `${Math.round(averageProgress1)}%`);
+            progressBarFill1.style.width = `${averageProgress1}%`;
+            completedTopicsSpan1.textContent = completedTopics1;
+            totalTopicsSpan1.textContent = topicCards1.length;
+
+            progressCircle2.style.background = `conic-gradient(var(--primary-color) ${averageProgress2 * 3.6}deg, #ecf0f1 0deg)`;
+            progressCircle2.setAttribute('data-progress', `${Math.round(averageProgress2)}%`);
+            progressBarFill2.style.width = `${averageProgress2}%`;
+            completedTopicsSpan2.textContent = completedTopics2;
+            totalTopicsSpan2.textContent = topicCards2.length;
+
+            console.log('averageProgress1:', averageProgress1); // 調試輸出
+            console.log('averageProgress2:', averageProgress2); // 調試輸出
+
+            const getAchievementTitle = (progress) => {
+                if (progress < 10) return "戰情初學者";
+                if (progress < 25) return "戰情達人";
+                if (progress < 50) return "戰情高手";
+                if (progress < 75) return "戰情大師";
+                if (progress < 100) return "戰情專家";
+                return "戰情王者";
+            };
+
+            // 顯示成就提醒
+            if (averageProgress1 >= 50) {
+                console.log('Displaying achievement message 1'); // 調試輸出
+                achievementBanner1.innerHTML = `<strong>恭喜！</strong>您已經完成了一半的學習進度，稱號：「${getAchievementTitle(averageProgress1)}」！<span class='badge'></span>`;
+                achievementBanner1.classList.add('show');
+
+                setTimeout(() => {
+                    achievementBanner1.classList.remove('show');
+                }, 5000);
+            }
+
+            if (averageProgress2 >= 50) {
+                console.log('Displaying achievement message 2'); // 調試輸出
+                achievementBanner2.innerHTML = `<strong>恭喜！</strong>您已經完成了一半的學習進度，稱號：「${getAchievementTitle(averageProgress2)}」！<span class='badge'></span>`;
+                achievementBanner2.classList.add('show');
+
+                setTimeout(() => {
+                    achievementBanner2.classList.remove('show');
+                }, 5000);
+            }
+
+            // 顯示學習提醒
+            setTimeout(() => {
+                reminderBanner1.classList.add('show');
+                setTimeout(() => {
+                    reminderBanner1.classList.remove('show');
+                }, 7000);
+            }, 10000);
+
+            setTimeout(() => {
+                reminderBanner2.classList.add('show');
+                setTimeout(() => {
+                    reminderBanner2.classList.remove('show');
+                }, 7000);
+            }, 10000);
+
+            // 隨機生成影片長度
+            const randomMinutes = () => Math.floor(Math.random() * 3) + 1;
+            document.getElementById('videoLength1').textContent = `${randomMinutes()}分鐘`;
+            document.getElementById('videoLength2').textContent = `${randomMinutes()}分鐘`;
+            document.getElementById('videoLength3').textContent = `${randomMinutes()}分鐘`;
+            document.getElementById('videoLength4').textContent = `${randomMinutes()}分鐘`;
+            document.getElementById('videoLength5').textContent = `${randomMinutes()}分鐘`;
+            document.getElementById('videoLength6').textContent = `${randomMinutes()}分鐘`;
+            document.getElementById('videoLength7').textContent = `${randomMinutes()}分鐘`;
+            document.getElementById('videoLength8').textContent = `${randomMinutes()}分鐘`;
+        });
+
+        // 子項目滑動檢測
+        window.addEventListener('scroll', () => {
+            const subTopics = document.querySelectorAll('.sub-topic');
+            subTopics.forEach(subTopic => {
+                const rect = subTopic.getBoundingClientRect();
+                if (rect.top >= 0 && rect.bottom <= window.innerHeight) {
+                    if (!subTopic.classList.contains('completed')) {
+                        subTopic.style.backgroundColor = 'var(--accent-background-color)';
+                        subTopic.style.color = 'var(--accent-text-color)';
+                        subTopic.querySelector('.sub-topic-title').style.color = 'var(--accent-text-color)';
+                    }
+                } else {
+                    subTopic.style.backgroundColor = '';
+                    subTopic.style.color = '';
+                    subTopic.querySelector('.sub-topic-title').style.color = 'var(--accent-color)';
+                }
+            });
+        });
+
+        // 搜尋功能
+        const searchBar = document.querySelector('.search-bar');
+        searchBar.addEventListener('input', () => {
+            const searchTerm = searchBar.value.toLowerCase();
+            const allCards = document.querySelectorAll('.topic-card, .sub-topic');
+
+            allCards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
